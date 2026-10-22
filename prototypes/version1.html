@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Learning App - Prototype (Multi-wall Node)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@800;900&display=swap');
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #0f172a;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .phone-container {
+      width: 375px;
+      height: 760px;
+      background-color: #10b981;
+      border-radius: 44px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      border: 10px solid #1e293b;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 28px;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: #000;
+      z-index: 50;
+    }
+
+    .top-bar {
+      background-color: #ffffff;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      z-index: 40;
+    }
+
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+      background-color: #f8fafc;
+    }
+
+    .age-screen {
+      background: linear-gradient(180deg, #fff715 0%, #059669 100%);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 30px 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .age-card {
+      background: white;
+      color: #1e293b;
+      border-radius: 20px;
+      padding: 14px 20px;
+      width: 100%;
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: 0 6px 0 #cbd5e1;
+      cursor: pointer;
+      transition: all 0.1s;
+      border: 2px solid #e2e8f0;
+    }
+
+    .age-card:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #cbd5e1;
+    }
+
+    .path-container {
+      padding: 20px 0 80px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .top-leon-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+      z-index: 30;
+    }
+
+    .leon-speech {
+      background: #fef08a;
+      color: #713f12;
+      padding: 6px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 2px solid #fde047;
+      margin-bottom: 6px;
+      box-shadow: 0 3px 0 #facc15;
+    }
+
+    .node-big-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 10px 0 rgba(0,0,0,0.15);
+      z-index: 20;
+      border: 5px solid #ffffff;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .node-completed {
+      background: #f59e0b;
+      box-shadow: 0 8px 0 #d97706;
+      color: white;
+    }
+
+    .node-active {
+      background: #3b82f6;
+      box-shadow: 0 8px 0 #1d4ed8;
+      color: white;
+    }
+
+    .node-locked {
+      background: #94a3b8;
+      box-shadow: 0 8px 0 #64748b;
+      color: #e2e8f0;
+    }
+
+    .walls-progress {
+      display: flex;
+      gap: 3px;
+      margin-top: 6px;
+    }
+
+    .wall-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .wall-dot.solved {
+      background: #22c55e;
+    }
+
+    .wall-dot.current {
+      background: #ef4444;
+      animation: pulse 1s infinite;
+    }
+
+    .path-line {
+      width: 8px;
+      height: 32px;
+      background-color: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone-container">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="flex gap-1">
+      <span>📶</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <div id="screen-age" class="age-screen">
+    <div class="mt-4 flex flex-col items-center gap-2">
+      <div class="w-24 h-28 relative">
+        <svg viewBox="0 0 120 130" fill="none">
+          <rect x="42" y="80" width="36" height="30" rx="8" fill="#1e3a8a"/>
+          <rect x="42" y="76" width="36" height="6" fill="#f59e0b"/>
+          <path d="M35 50 C 35 40, 85 40, 85 50 L 88 82 C 88 88, 32 88, 32 82 Z" fill="#10b981"/>
+          <circle cx="60" cy="35" r="30" fill="#10b981"/>
+          <circle cx="42" cy="22" r="10" fill="#2563eb"/>
+          <path d="M40 32 C 40 22, 80 22, 80 32 C 80 48, 40 48, 40 32 Z" fill="#78350f"/>
+          <path d="M52 38 Q 60 46 68 38" stroke="#ffffff" stroke-width="3" fill="none"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-black text-white">Привет! 👋</h1>
+      <p class="text-base font-extrabold text-emerald-100">Сколько тебе лет?</p>
+    </div>
+
+    <div class="w-full flex flex-col gap-3 my-auto">
+      <div class="age-card flex justify-between items-center" onclick="selectAge(4)">
+        <span>4 года</span> <span class="text-2xl">🎈</span>
+      </div>
+      <div class="age-card flex justify-between items-center" onclick="selectAge(5)">
+        <span>5 лет</span> <span class="text-2xl">🚀</span>
+      </div>
+      <div class="age-card flex justify-between items-center" onclick="selectAge(6)">
+        <span>6 лет</span> <span class="text-2xl">⭐</span>
+      </div>
+      <div class="age-card flex justify-between items-center" onclick="selectAge(7)">
+        <span>7 – 9 лет</span> <span class="text-2xl">🏆</span>
+      </div>
+    </div>
+
+    <p class="text-xs opacity-80 font-bold mb-2">Math App • Ages 4–9</p>
+  </div>
+
+  <div id="screen-map" class="hidden flex-col h-full">
+    <div class="top-bar">
+      <div class="stat-badge text-amber-500"><span>⭐</span> <span>15</span></div>
+      <div class="stat-badge text-red-500"><span>🔥</span> <span>4</span></div>
+      <div class="stat-badge text-sky-500"><span>💎</span> <span>200</span></div>
+      <div class="stat-badge text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-lg text-xs">
+        <span id="user-age-tag">4 года</span>
+      </div>
+    </div>
+
+    <div class="bg-emerald-600 text-white p-3 px-4 flex justify-between items-center shadow-md">
+      <div>
+        <div class="text-xs font-black uppercase opacity-80">Путь к выходу</div>
+        <div class="text-sm font-black">Реши 5 задач внутри кружка! 🧱</div>
+      </div>
+      <div class="bg-emerald-700 p-2 rounded-xl text-lg">🗺️</div>
+    </div>
+
+    <div class="screen-content">
+      <div class="path-container">
+
+        <div class="top-leon-container">
+          <div class="leon-speech">Снеси все 5 стен внутри уровня и спускайся! 👇</div>
+          <div class="w-14 h-16 animate-bounce">
+            <svg viewBox="0 0 120 130" fill="none">
+              <path d="M25 95 C 10 95, 5 110, 20 115 C 30 118, 35 105, 30 98" stroke="#059669" stroke-width="8" stroke-linecap="round"/>
+              <rect x="42" y="80" width="36" height="30" rx="8" fill="#1e3a8a"/>
+              <rect x="42" y="76" width="36" height="6" fill="#f59e0b"/>
+              <path d="M35 50 C 35 40, 85 40, 85 50 L 88 82 C 88 88, 32 88, 32 82 Z" fill="#10b981"/>
+              <circle cx="60" cy="35" r="30" fill="#10b981"/>
+              <circle cx="42" cy="22" r="10" fill="#2563eb"/>
+              <path d="M40 32 C 40 22, 80 22, 80 32 C 80 48, 40 48, 40 32 Z" fill="#78350f"/>
+              <path d="M52 38 Q 60 46 68 38" stroke="#ffffff" stroke-width="3" fill="none"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="node-big-circle node-completed transform -translate-x-4">
+          <span class="text-xs uppercase font-extrabold opacity-90">Уровень 1</span>
+          <span class="text-lg font-black">✓ Готово</span>
+          <div class="walls-progress">
+            <div class="wall-dot solved"></div>
+            <div class="wall-dot solved"></div>
+            <div class="wall-dot solved"></div>
+            <div class="wall-dot solved"></div>
+            <div class="wall-dot solved"></div>
+          </div>
+        </div>
+
+        <div class="path-line"></div>
+
+        <div class="node-big-circle node-active ring-4 ring-emerald-300 animate-pulse transform translate-x-4" onclick="alert('Вы зашли внутрь Уровня 2! Здесь 5 задач-стен. Решите их по очереди, чтобы продвинуться дальше к выходу вниз.')">
+          <span class="text-xs uppercase font-extrabold text-blue-200">Уровень 2</span>
+          <span class="text-sm font-black">🧱 В процессе</span>
+          <div class="walls-progress">
+            <div class="wall-dot solved"></div>
+            <div class="wall-dot solved"></div>
+            <div class="wall-dot current"></div>
+            <div class="wall-dot"></div>
+            <div class="wall-dot"></div>
+          </div>
+        </div>
+
+        <div class="path-line"></div>
+
+        <div class="node-big-circle node-locked transform -translate-x-4">
+          <span class="text-xs uppercase font-extrabold text-gray-300">Уровень 3</span>
+          <span class="text-sm font-black">🔒 Заперто</span>
+          <div class="walls-progress">
+            <div class="wall-dot"></div>
+            <div class="wall-dot"></div>
+            <div class="wall-dot"></div>
+            <div class="wall-dot"></div>
+            <div class="wall-dot"></div>
+          </div>
+        </div>
+
+        <div class="path-line"></div>
+
+        <div class="w-24 h-16 bg-amber-500 border-4 border-amber-600 rounded-2xl flex flex-col items-center justify-center text-white font-black shadow-lg transform translate-y-1">
+          <span class="text-lg">🏁 ВЫХОД</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="bg-white border-t border-gray-200 p-2.5 flex justify-around items-center z-50 text-xl">
+      <div class="text-emerald-600">🏠</div>
+      <div class="text-gray-300">🏆</div>
+      <div class="text-gray-300">✏️</div>
+      <div class="text-gray-300">⚙️</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function selectAge(age) {
+    let label = age + ' года';
+
+    if (age >= 5 && age <= 6) label = age + ' лет';
+    if (age === 7) label = '7–9 лет';
+
+    document.getElementById('user-age-tag').innerText = label;
+    document.getElementById('screen-age').classList.add('hidden');
+    document.getElementById('screen-map').classList.remove('hidden');
+    document.getElementById('screen-map').classList.add('flex');
+  }
+</script>
+
+</body>
+</html>

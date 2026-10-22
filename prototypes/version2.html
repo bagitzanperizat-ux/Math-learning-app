@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Quest — Math-learning-app</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f7ff;
+      color: #172033;
+    }
+
+    .soft-shadow {
+      box-shadow: 0 16px 40px rgba(50, 83, 150, 0.12);
+    }
+
+    .mascot-float {
+      animation: mascotFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes mascotFloat {
+      0%, 100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-7px);
+      }
+    }
+
+    .mascot {
+      position: relative;
+      width: 138px;
+      height: 160px;
+      margin: 0 auto;
+    }
+
+    .hood {
+      position: absolute;
+      top: 8px;
+      left: 23px;
+      width: 92px;
+      height: 91px;
+      border: 7px solid #15803d;
+      border-radius: 48% 48% 42% 42%;
+      background: #22c55e;
+      z-index: 2;
+    }
+
+    .hood-inner {
+      position: absolute;
+      top: 15px;
+      left: 16px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: #fde6c8;
+      border: 3px solid #a16207;
+    }
+
+    .eye {
+      position: absolute;
+      top: 20px;
+      width: 6px;
+      height: 8px;
+      border-radius: 50%;
+      background: #172033;
+    }
+
+    .eye.left {
+      left: 16px;
+    }
+
+    .eye.right {
+      right: 16px;
+    }
+
+    .smile {
+      position: absolute;
+      left: 20px;
+      bottom: 12px;
+      width: 17px;
+      height: 9px;
+      border-bottom: 3px solid #172033;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .hoodie-body {
+      position: absolute;
+      bottom: 5px;
+      left: 17px;
+      width: 105px;
+      height: 78px;
+      border-radius: 38px 38px 20px 20px;
+      background: #16a34a;
+      border: 6px solid #15803d;
+      z-index: 1;
+    }
+
+    .hoodie-pocket {
+      position: absolute;
+      bottom: 11px;
+      left: 27px;
+      width: 42px;
+      height: 20px;
+      border: 3px solid #15803d;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .string {
+      position: absolute;
+      top: -5px;
+      width: 3px;
+      height: 25px;
+      background: #f0fdf4;
+      border-radius: 4px;
+    }
+
+    .string.left {
+      left: 30px;
+    }
+
+    .string.right {
+      right: 30px;
+    }
+
+    .map-wrapper {
+      position: relative;
+    }
+
+    .map-path {
+      position: absolute;
+      top: 116px;
+      bottom: 90px;
+      left: 50%;
+      width: 8px;
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: repeating-linear-gradient(
+        to bottom,
+        #c7d2fe 0 18px,
+        transparent 18px 28px
+      );
+      z-index: 0;
+    }
+
+    .level-node {
+      position: relative;
+      z-index: 2;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 7px solid white;
+      color: white;
+      font-weight: 900;
+      font-size: 28px;
+      box-shadow: 0 12px 22px rgba(50, 83, 150, 0.18);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .level-node:not(:disabled):hover {
+      transform: scale(1.08);
+      box-shadow: 0 16px 28px rgba(50, 83, 150, 0.25);
+    }
+
+    .level-node:disabled {
+      cursor: not-allowed;
+    }
+
+    .level-node.unlocked {
+      background: #f59e0b;
+    }
+
+    .level-node.completed {
+      background: #22c55e;
+    }
+
+    .level-node.locked {
+      background: #94a3b8;
+      opacity: 0.9;
+    }
+
+    .wall-card {
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .wall-card.current {
+      transform: scale(1.03);
+      border-color: #f59e0b;
+      background: #fffaf0;
+    }
+
+    .wall-card.solved {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .answer-input::-webkit-outer-spin-button,
+    .answer-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .answer-input[type=number] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="onboarding" class="min-h-screen px-5 py-8 flex items-center justify-center">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-green-500 text-5xl shadow-lg mb-4">
+          🧮
+        </div>
+
+        <h1 class="text-3xl font-black text-slate-900">
+          Math Quest
+        </h1>
+
+        <p class="text-slate-500 mt-2">
+          Учимся считать вместе с Леоном
+        </p>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 soft-shadow">
+        <h2 class="text-xl font-extrabold text-slate-900 text-center">
+          Сколько лет ребенку?
+        </h2>
+
+        <p class="text-sm text-slate-500 text-center mt-2 mb-6">
+          Мы подберем подходящую сложность заданий
+        </p>
+
+        <div id="ageOptions" class="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            data-age="4"
+            data-label="4 года"
+            class="age-option rounded-2xl border-2 border-slate-200 p-4 text-left hover:border-green-400 hover:bg-green-50 transition"
+          >
+            <span class="block text-2xl mb-2">🌱</span>
+            <span class="font-bold">4 года</span>
+          </button>
+
+          <button
+            type="button"
+            data-age="5"
+            data-label="5 лет"
+            class="age-option rounded-2xl border-2 border-slate-200 p-4 text-left hover:border-green-400 hover:bg-green-50 transition"
+          >
+            <span class="block text-2xl mb-2">⭐</span>
+            <span class="font-bold">5 лет</span>
+          </button>
+
+          <button
+            type="button"
+            data-age="6"
+            data-label="6 лет"
+            class="age-option rounded-2xl border-2 border-slate-200 p-4 text-left hover:border-green-400 hover:bg-green-50 transition"
+          >
+            <span class="block text-2xl mb-2">🚀</span>
+            <span class="font-bold">6 лет</span>
+          </button>
+
+          <button
+            type="button"
+            data-age="7"
+            data-label="7–9 лет"
+            class="age-option rounded-2xl border-2 border-slate-200 p-4 text-left hover:border-green-400 hover:bg-green-50 transition"
+          >
+            <span class="block text-2xl mb-2">🏆</span>
+            <span class="font-bold">7–9 лет</span>
+          </button>
+        </div>
+
+        <button
+          id="startButton"
+          disabled
+          class="w-full mt-6 rounded-2xl bg-green-500 py-4 text-white font-extrabold text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-600 transition"
+        >
+          Начать приключение
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="app" class="hidden min-h-screen pb-10">
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200">
+      <div class="max-w-xl mx-auto px-5 py-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-widest font-bold text-green-600">
+            Math Quest
+          </p>
+          <h1 class="text-xl font-black text-slate-900">
+            Карта приключений
+          </h1>
+        </div>
+
+        <div class="text-right">
+          <p id="ageDisplay" class="text-sm font-bold text-slate-700"></p>
+          <p id="progressDisplay" class="text-xs text-slate-500"></p>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-xl mx-auto px-5 pt-6">
+      <div class="bg-white rounded-3xl p-5 soft-shadow relative z-10">
+        <div class="flex items-center gap-4">
+          <div class="mascot-float shrink-0">
+            <div class="mascot">
+              <div class="hood">
+                <div class="hood-inner">
+                  <span class="eye left"></span>
+                  <span class="eye right"></span>
+                  <span class="smile"></span>
+                </div>
+              </div>
+
+              <div class="hoodie-body">
+                <span class="string left"></span>
+                <span class="string right"></span>
+                <div class="hoodie-pocket"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-xl font-black">Леон</h2>
+              <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-bold text-green-700">
+                Друг
+              </span>
+            </div>
+
+            <div class="mt-2 rounded-2xl rounded-tl-none bg-green-50 p-3 text-sm text-slate-700">
+              Привет! Нажми на первый кружок и помоги мне пройти все стены!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-7">
+        <div class="flex items-end justify-between mb-4">
+          <div>
+            <p class="text-xs uppercase tracking-widest font-bold text-indigo-500">
+              Quest Map
+            </p>
+            <h2 class="text-2xl font-black text-slate-900">
+              Тропинка знаний
+            </h2>
+          </div>
+
+          <button
+            id="changeAgeButton"
+            class="text-xs font-bold text-slate-500 underline hover:text-green-600"
+          >
+            Изменить возраст
+          </button>
+        </div>
+
+        <div class="map-wrapper">
+          <div class="map-path"></div>
+          <div id="levelsContainer" class="relative z-10 space-y-8"></div>
+
+          <div class="relative z-10 flex flex-col items-center mt-9">
+            <div class="w-20 h-20 rounded-full bg-indigo-500 border-7 border-white shadow-xl flex items-center justify-center text-4xl">
+              🏁
+            </div>
+
+            <div class="mt-3 rounded-2xl bg-white px-5 py-3 text-center soft-shadow">
+              <p class="font-black text-slate-900">Выход</p>
+              <p class="text-xs text-slate-500 mt-1">
+                Пройди все уровни
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <div
+    id="levelModal"
+    class="hidden fixed inset-0 z-50 bg-slate-900/50 p-4 items-end sm:items-center justify-center"
+  >
+    <div class="w-full max-w-md max-h-[92vh] overflow-y-auto rounded-3xl bg-white p-5 soft-shadow">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p id="modalLevelLabel" class="text-sm font-bold text-amber-600"></p>
+          <h2 id="modalTitle" class="text-2xl font-black text-slate-900 mt-1"></h2>
+        </div>
+
+        <button
+          id="closeModalButton"
+          class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 text-xl hover:bg-slate-200"
+          aria-label="Закрыть"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="mt-5">
+        <div class="flex items-center justify-between text-sm mb-2">
+          <span class="font-bold text-slate-700">Прогресс стен</span>
+          <span id="wallProgressText" class="font-black text-green-600">0/5</span>
+        </div>
+
+        <div class="h-3 rounded-full bg-slate-100 overflow-hidden">
+          <div
+            id="wallProgressBar"
+            class="h-full rounded-full bg-green-500 transition-all duration-300"
+            style="width: 0%"
+          ></div>
+        </div>
+      </div>
+
+      <div id="wallsContainer" class="grid grid-cols-5 gap-2 mt-5"></div>
+
+      <div id="challengeContainer" class="mt-6"></div>
+    </div>
+  </div>
+
+  <script>
+    const onboarding = document.getElementById("onboarding");
+    const app = document.getElementById("app");
+    const startButton = document.getElementById("startButton");
+    const ageOptions = document.querySelectorAll(".age-option");
+    const ageDisplay = document.getElementById("ageDisplay");
+    const progressDisplay = document.getElementById("progressDisplay");
+    const levelsContainer = document.getElementById("levelsContainer");
+    const changeAgeButton = document.getElementById("changeAgeButton");
+
+    const levelModal = document.getElementById("levelModal");
+    const closeModalButton = document.getElementById("closeModalButton");
+    const modalLevelLabel = document.getElementById("modalLevelLabel");
+    const modalTitle = document.getElementById("modalTitle");
+    const wallProgressText = document.getElementById("wallProgressText");
+    const wallProgressBar = document.getElementById("wallProgressBar");
+    const wallsContainer = document.getElementById("wallsContainer");
+    const challengeContainer = document.getElementById("challengeContainer");
+
+    let selectedAge = null;
+    let selectedAgeLabel = "";
+    let activeLevel = null;
+
+    const totalLevels = 6;
+
+    let levels = Array.from({ length: totalLevels }, (_, index) => ({
+      number: index + 1,
+      progress: 0,
+      completed: false,
+      tasks: []
+    }));
+
+    function resetProgress() {
+      levels = Array.from({ length: totalLevels }, (_, index) => ({
+        number: index + 1,
+        progress: 0,
+        completed: false,
+        tasks: []
+      }));
+    }
+
+    function createTasks(age, levelNumber) {
+      const level = levelNumber - 1;
+
+      return Array.from({ length: 5 }, (_, wall) => {
+        let first;
+        let second;
+        let answer;
+        let text;
+        let hint;
+
+        if (age >= 7 && level >= 2 && wall === 4) {
+          first = levelNumber + 2;
+          second = wall + 2;
+          answer = first * second;
+          text = `${first} × ${second} = ?`;
+          hint = "Умножение — это несколько одинаковых групп.";
+        } else if (wall % 2 === 0) {
+          first = Math.max(1, age - 3) + level + wall;
+          second = wall + 1;
+          answer = first + second;
+          text = `${first} + ${second} = ?`;
+          hint = "Посчитай все предметы вместе.";
+        } else {
+          second = wall + 1;
+          first = second + Math.max(2, age - 2) + level;
+          answer = first - second;
+          text = `${first} − ${second} = ?`;
+          hint = "Убери второе число из первого.";
+        }
+
+        return {
+          text,
+          answer,
+          hint
+        };
+      });
+    }
+
+    function selectAge(age, label, clickedButton) {
+      selectedAge = Number(age);
+      selectedAgeLabel = label;
+
+      ageOptions.forEach(button => {
+        button.classList.remove(
+          "border-green-500",
+          "bg-green-50",
+          "ring-2",
+          "ring-green-200"
+        );
+
+        button.classList.add("border-slate-200");
+      });
+
+      clickedButton.classList.remove("border-slate-200");
+      clickedButton.classList.add(
+        "border-green-500",
+        "bg-green-50",
+        "ring-2",
+        "ring-green-200"
+      );
+
+      startButton.disabled = false;
+    }
+
+    ageOptions.forEach(button => {
+      button.addEventListener("click", () => {
+        selectAge(
+          button.dataset.age,
+          button.dataset.label,
+          button
+        );
+      });
+    });
+
+    startButton.addEventListener("click", () => {
+      if (!selectedAge) return;
+
+      resetProgress();
+
+      ageDisplay.textContent = selectedAgeLabel;
+      onboarding.classList.add("hidden");
+      app.classList.remove("hidden");
+
+      renderMap();
+    });
+
+    changeAgeButton.addEventListener("click", () => {
+      app.classList.add("hidden");
+      onboarding.classList.remove("hidden");
+      levelModal.classList.add("hidden");
+      levelModal.classList.remove("flex");
+    });
+
+    function renderMap() {
+      const completedCount = levels.filter(level => level.completed).length;
+
+      progressDisplay.textContent = `Пройдено: ${completedCount}/${totalLevels}`;
+
+      levelsContainer.innerHTML = levels.map((level, index) => {
+        const isUnlocked = index === 0 || levels[index - 1].completed;
+        const isCompleted = level.completed;
+
+        let nodeClass = "locked";
+        let icon = "🔒";
+        let label = "Сначала пройди предыдущий уровень";
+
+        if (isCompleted) {
+          nodeClass = "completed";
+          icon = "✓";
+          label = "Уровень пройден";
+        } else if (isUnlocked) {
+          nodeClass = "unlocked";
+          icon = level.number;
+          label = "Нажми, чтобы войти";
+        }
+
+        return `
+          <div class="relative flex flex-col items-center">
+            <button
+              type="button"
+              class="level-node ${nodeClass}"
+              data-level="${index}"
+              ${!isUnlocked ? "disabled" : ""}
+              aria-label="Уровень ${level.number}"
+            >
+              ${icon}
+            </button>
+
+            <div class="mt-3 min-w-[190px] rounded-2xl bg-white px-4 py-3 text-center soft-shadow">
+              <p class="font-black text-slate-900">
+                Уровень ${level.number}
+              </p>
+
+              <p class="mt-1 text-xs text-slate-500">
+                ${label}
+              </p>
+
+              <div class="mt-2 flex justify-center gap-1">
+                ${[0, 1, 2, 3, 4].map(wallIndex => {
+                  const solved = wallIndex < level.progress;
+
+                  return `
+                    <span class="w-2 h-2 rounded-full ${solved ? "bg-green-500" : "bg-slate-200"}"></span>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll("[data-level]").forEach(button => {
+        button.addEventListener("click", () => {
+          const levelIndex = Number(button.dataset.level);
+          openLevel(levelIndex);
+        });
+      });
+    }
+
+    function openLevel(levelIndex) {
+      activeLevel = levelIndex;
+
+      const level = levels[activeLevel];
+
+      if (!level.tasks.length) {
+        level.tasks = createTasks(selectedAge, level.number);
+      }
+
+      modalLevelLabel.textContent = `Квест ${level.number}`;
+      modalTitle.textContent = level.completed
+        ? "Квест завершён!"
+        : "Разруши 5 стен";
+
+      levelModal.classList.remove("hidden");
+      levelModal.classList.add("flex");
+
+      renderChallenge();
+    }
+
+    function renderChallenge() {
+      const level = levels[activeLevel];
+      const progress = level.progress;
+
+      wallProgressText.textContent = `${progress}/5`;
+      wallProgressBar.style.width = `${(progress / 5) * 100}%`;
+
+      wallsContainer.innerHTML = [0, 1, 2, 3, 4].map(index => {
+        const solved = index < progress;
+        const current = index === progress && !level.completed;
+
+        return `
+          <div class="
+            wall-card
+            ${solved ? "solved" : ""}
+            ${current ? "current" : ""}
+            border-2 border-slate-200 rounded-2xl p-2 text-center
+          ">
+            <div class="text-2xl">
+              ${solved ? "✅" : "🧱"}
+            </div>
+
+            <p class="mt-1 text-[10px] font-bold text-slate-500">
+              Стена ${index + 1}
+            </p>
+          </div>
+        `;
+      }).join("");
+
+      if (level.completed) {
+        challengeContainer.innerHTML = `
+          <div class="rounded-3xl bg-green-50 border border-green-200 p-6 text-center">
+            <div class="text-5xl">🎉</div>
+
+            <h3 class="mt-3 text-xl font-black text-green-800">
+              Все стены разрушены!
+            </h3>
+
+            <p class="mt-2 text-sm text-green-700">
+              Следующий уровень уже открыт. Леон гордится тобой!
+            </p>
+
+            <button
+              type="button"
+              id="continueButton"
+              class="w-full mt-5 rounded-2xl bg-green-500 py-3 text-white font-extrabold hover:bg-green-600 transition"
+            >
+              Продолжить путь
+            </button>
+          </div>
+        `;
+
+        document.getElementById("continueButton").addEventListener("click", closeModal);
+        return;
+      }
+
+      const task = level.tasks[progress];
+
+      challengeContainer.innerHTML = `
+        <div class="rounded-3xl bg-amber-50 border border-amber-200 p-5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🧱</span>
+            <p class="font-black text-amber-800">
+              Стена ${progress + 1} из 5
+            </p>
+          </div>
+
+          <p class="mt-5 text-center text-4xl font-black text-slate-900">
+            ${task.text}
+          </p>
+
+          <p class="mt-3 text-center text-sm text-slate-500">
+            Реши пример, чтобы разрушить стену
+          </p>
+
+          <form id="answerForm" class="mt-5">
+            <input
+              id="answerInput"
+              class="answer-input w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-4 text-center text-2xl font-black outline-none focus:border-green-500"
+              type="number"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="Ответ"
+              aria-label="Ответ"
+              required
+            />
+
+            <button
+              type="submit"
+              class="w-full mt-3 rounded-2xl bg-green-500 py-4 text-white font-extrabold hover:bg-green-600 transition"
+            >
+              Проверить ответ
+            </button>
+          </form>
+
+          <div id="answerFeedback" class="mt-4 text-center text-sm font-bold min-h-5"></div>
+
+          <div class="mt-4 rounded-2xl bg-white/70 p-3 text-xs text-slate-500">
+            💡 Подсказка: ${task.hint}
+          </div>
+        </div>
+      `;
+
+      const answerForm = document.getElementById("answerForm");
+      const answerInput = document.getElementById("answerInput");
+      const answerFeedback = document.getElementById("answerFeedback");
+
+      answerInput.focus();
+
+      answerForm.addEventListener("submit", event => {
+        event.preventDefault();
+
+        const userAnswer = Number(answerInput.value);
+
+        if (!Number.isFinite(userAnswer)) {
+          answerFeedback.textContent = "Введи число.";
+          answerFeedback.className = "mt-4 text-center text-sm font-bold text-red-500 min-h-5";
+          return;
+        }
+
+        if (userAnswer !== task.answer) {
+          answerFeedback.textContent = "Почти! Попробуй ещё раз 💪";
+          answerFeedback.className = "mt-4 text-center text-sm font-bold text-red-500 min-h-5";
+          answerInput.select();
+          return;
+        }
+
+        level.progress += 1;
+
+        if (level.progress >= 5) {
+          level.completed = true;
+        }
+
+        renderMap();
+        renderChallenge();
+      });
+    }
+
+    function closeModal() {
+      levelModal.classList.add("hidden");
+      levelModal.classList.remove("flex");
+      activeLevel = null;
+    }
+
+    closeModalButton.addEventListener("click", closeModal);
+
+    levelModal.addEventListener("click", event => {
+      if (event.target === levelModal) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
