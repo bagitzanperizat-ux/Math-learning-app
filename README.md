@@ -155,6 +155,7 @@ Interactive prototypes:
 - [Prototype Version 1](prototypes/version1.html)
 - [Prototype Version 2](prototypes/version2.html)
 - [Prototype Documentation](prototypes/README.md)
+- **Flutter Application:** [View Flutter Source Code](math_learning_app/)
 
 ## 11. Project Management
 
@@ -171,17 +172,29 @@ The board uses the following statuses:
 
 ## 12. Current Development Status
 
-The project is in the research, documentation, requirements analysis, and prototype-development stage.
+The project has progressed from research and documentation to the initial stage of mobile application development.
 
-The repository includes the project proposal, preliminary stakeholder feedback, literature review, existing-system comparison, requirements specification, technology comparison, architecture diagrams, verification plan, and HTML prototype files.
+**Completed:**
+- Project proposal and research documentation.
+- Literature review and comparison of existing educational applications.
+- Functional requirements specification.
+- Technology comparison and system architecture diagrams.
+- Interactive HTML prototype demonstrating the proposed user experience.
+- Initial Flutter project created using Flutter and Dart.
+- Flutter project source code uploaded to the GitHub repository.
 
-The Flutter implementation and its testing status will be documented as development progresses.
+**In Progress:**
+- Development of the Flutter application's user interface.
+- Implementation of age-appropriate mathematical activities.
+- Integration of interactive exercises, hints, feedback, and progress tracking.
+
+The Flutter application is currently at the initial development stage. The planned educational features have not yet all been implemented or tested.
 
 ## 13. Setup, Execution, and Testing
 
 ### Current HTML Prototype
 
-The interactive prototype files are located in the `prototypes/` directory.
+The interactive HTML prototype files are located in the `prototypes/` directory.
 
 To inspect a prototype locally:
 
@@ -193,17 +206,29 @@ If a prototype depends on externally loaded resources, an internet connection ma
 
 ### Flutter Application
 
-The Flutter application setup instructions will be finalised when the runnable Flutter project and its dependencies are available.
+The initial Flutter application project has been created in Android Studio using Flutter and Dart. The project structure has been uploaded to the GitHub repository in the `math_learning_app/` directory.
 
-The planned setup process is:
+**Completed setup steps:**
+1. Installed and configured the Flutter SDK.
+2. Configured the Flutter development environment in Android Studio.
+3. Created the initial Flutter project.
+4. Generated the default Flutter project structure.
+5. Uploaded the Flutter source files to GitHub.
 
-1. Install the Flutter SDK.
-2. Clone the repository.
-3. Run `flutter pub get` from the Flutter project directory.
-4. Launch the application on a supported emulator or device.
-5. Run the available tests.
+**Development environment:**
+- **Framework:** Flutter
+- **Programming language:** Dart
+- **IDE:** Android Studio
+- **Version control:** Git and GitHub
 
-These steps describe the planned workflow; they do not indicate that a runnable Flutter application is already available.
+**Next development steps:**
+1. Develop the main application screens.
+2. Implement interactive mathematics exercises for children aged 4–5.
+3. Add answer checking, hints, and feedback.
+4. Implement learning progress tracking.
+5. Run and test the application on a supported emulator or device.
+
+The Flutter project is currently at the initial development stage. The main educational features have not yet been implemented, and application testing is still to be completed.
 
 ## 14. Expected Outcomes
 
