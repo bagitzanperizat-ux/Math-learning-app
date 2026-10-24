@@ -126,13 +126,20 @@ Math-learning-app/
 │   ├── requirements-specification.md
 │   ├── technology-comparison.md
 │   ├── architecture-and-diagrams.md
-│   └── verification-plan.md
+│   ├── verification-plan.md
+│   └── supervisor-feedback.md
+├── math_learning_app/
+│   ├── android/
+│   ├── ios/
+│   ├── lib/
+│   ├── test/
+│   ├── pubspec.yaml
+│   └── README.md
 └── prototypes/
     ├── README.md
     ├── version1.html
     └── version2.html
 ```
-
 ## 10. Project Documentation
 
 - [Project Proposal](docs/project-proposal.md)
@@ -143,6 +150,7 @@ Math-learning-app/
 - [Technology Comparison](docs/technology-comparison.md)
 - [Architecture and Diagrams](docs/architecture-and-diagrams.md)
 - [Verification and Evaluation Plan](docs/verification-plan.md)
+- [Supervisor Feedback](docs/supervisor-feedback.md)
 
 Architecture diagrams:
 
